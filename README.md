@@ -35,3 +35,8 @@ julia> @btime HasLengthMeth(Tuple)
   1.126 ns (0 allocations: 0 bytes)
 true
 ```
+
+Here is a useful function:
+```julia
+maybecollect(v) = HasO1GetIndexMeth(v) ? v : collect(v)
+```
