@@ -36,6 +36,10 @@ julia> @btime HasLengthMeth(Tuple)
 true
 ```
 
+It has to be this way because of the dynamic nature of Julia. However, for the traits here to
+disagree with `hasmethod` someone would have to be committing egregious type piracy.
+
+
 Here is a useful function:
 ```julia
 maybecollect(v) = HasO1GetIndexMeth(v) ? v : collect(v)
