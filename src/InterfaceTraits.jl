@@ -8,12 +8,10 @@ import LinearAlgebra
 import Test
 import OrderedCollections
 
-# TODO: Need to handle availability in diferent versions of Julia
-# This is easiest to handle knowing what is available
-# using Base.Iterators
+# TODO: Need to handle availability in diferent versions of Julia This is
+# easiest to handle knowing what is available using Base.Iterators
 import Base.Iterators: Accumulate, Filter, Reverse, Stateful, Count, IterationCutShort, Take,
-    Cycle, PartitionIterator, TakeWhile, Drop, ProductIterator, Zip, DropWhile, Repeated,
-Enumerate, Rest
+    Cycle, PartitionIterator, TakeWhile, Drop, ProductIterator, Zip, DropWhile, Repeated, Enumerate, Rest
 
 export InterfaceTrait, HasIterateMeth, HasLengthMeth, HasSizeMeth, HasGetIndexMeth, HasO1GetIndexMeth,
     HasSetIndex!Meth
@@ -90,8 +88,11 @@ for _type in (:AbstractRange, :Array, :Tuple)
     @eval HasO1GetIndexMeth(::Type{<:$_type}) = true
 end
 
-for _type in (:String, :LazyString, :SubString, :SubstitutionString)
-    @eval HasO1GetIndexMeth(::Type{<:$_type}) = false
+let string_types = [:String, :SubString, :SubstitutionString]
+    VERSION >= v"1.8" && push!(string_types, :LazyString)
+    for _type in string_types
+        @eval HasO1GetIndexMeth(::Type{<:$_type}) = false
+    end
 end
 
 end # module InterfaceTraits
