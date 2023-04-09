@@ -10,8 +10,12 @@ import OrderedCollections
 
 # TODO: Need to handle availability in diferent versions of Julia This is
 # easiest to handle knowing what is available using Base.Iterators
-import Base.Iterators: Accumulate, Filter, Reverse, Stateful, Count, IterationCutShort, Take,
-    Cycle, PartitionIterator, TakeWhile, Drop, ProductIterator, Zip, DropWhile, Repeated, Enumerate, Rest
+import Base.Iterators: Filter, Reverse, Stateful, Count, IterationCutShort, Take,
+    Cycle, PartitionIterator, Drop, ProductIterator, Zip, Repeated, Enumerate, Rest
+
+if VERSION >= v"1.4"
+    import Accumulate, TakeWhile, DropWhile
+end
 
 export InterfaceTrait, HasIterateMeth, HasLengthMeth, HasSizeMeth, HasGetIndexMeth, HasO1GetIndexMeth,
     HasSetIndex!Meth
@@ -48,9 +52,11 @@ end
 
 function _get_several_leaf_types()
     leaf_types = Any[]
-    iterators = (Accumulate, Filter, Reverse, Stateful, Count, IterationCutShort, Take,
-    Cycle, PartitionIterator, TakeWhile, Drop, ProductIterator, Zip, DropWhile, Repeated,
-    Enumerate, Rest)
+    iterators = [Filter, Reverse, Stateful, Count, IterationCutShort, Take,
+    Cycle, PartitionIterator, Drop, ProductIterator, Zip, Repeated, Enumerate, Rest]
+    if VERSION >= v"1.4"
+        append!(iterators, [Accumulate, DropWhile, TakeWhile])
+    end
     toptypes = (AbstractArray, AbstractDict, Base.Generator, AbstractString, Tuple,
                 iterators...)
     for _type in toptypes
