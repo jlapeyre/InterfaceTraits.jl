@@ -44,8 +44,6 @@ corresponding function at the time `InterfaceTraits` is compiled.
 
 A handful of tests are provided.
 
-Doing some testing with `hasmethod` would be useful.
-
 ### Why are these useful?
 
 One reason is
