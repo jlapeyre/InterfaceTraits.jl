@@ -14,7 +14,7 @@ import Base.Iterators: Filter, Reverse, Stateful, Count, IterationCutShort, Take
     Cycle, PartitionIterator, Drop, ProductIterator, Zip, Repeated, Enumerate, Rest
 
 if VERSION >= v"1.4"
-    import Accumulate, TakeWhile, DropWhile
+    import Base.Iterators: Accumulate, TakeWhile, DropWhile
 end
 
 export InterfaceTrait, HasIterateMeth, HasLengthMeth, HasSizeMeth, HasGetIndexMeth, HasO1GetIndexMeth,
@@ -65,7 +65,8 @@ function _get_several_leaf_types()
     return leaf_types
 end
 
-function make_has_method_exprs(type_list, exprs::Vector{Expr} = Expr[])
+# Add methods for `funcpairs` for all types in `type_list`.
+function _makehas_method_exprs(type_list, exprs::Vector{Expr} = Expr[])
     funcpairs = ((:HasIterateMeth, iterate), (:HasLengthMeth, length), (:HasSizeMeth, size),
                  (:HasGetIndexMeth, getindex), (:HasSetIndex!Meth, setindex!))
     for _type in type_list
@@ -73,7 +74,11 @@ function make_has_method_exprs(type_list, exprs::Vector{Expr} = Expr[])
             if func == getindex
                 result = hasmethod(func, (_type, Int))
             elseif func == setindex!
-                result = hasmethod(func, (_type, Int, Int))
+                if ! (_type <: AbstractRange)
+                    result = hasmethod(func, (_type, Int, Int))
+                else
+                    continue
+                end
             else
                 result = hasmethod(func, (_type,))
             end
@@ -84,7 +89,7 @@ function make_has_method_exprs(type_list, exprs::Vector{Expr} = Expr[])
 end
 
 let _types = _get_several_leaf_types()
-    allexpr = make_has_method_exprs(_types)
+    allexpr = _makehas_method_exprs(_types)
     for expr in allexpr
         eval(expr)
     end
@@ -93,6 +98,8 @@ end
 for _type in (:AbstractRange, :Array, :Tuple)
     @eval HasO1GetIndexMeth(::Type{<:$_type}) = true
 end
+
+HasSetIndex!Meth(::Type{<:AbstractRange}) = false
 
 let string_types = [:String, :SubString, :SubstitutionString]
     VERSION >= v"1.8" && push!(string_types, :LazyString)
