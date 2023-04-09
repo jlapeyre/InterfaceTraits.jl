@@ -79,5 +79,7 @@ there are likely cases where it will fail.
 Methods for `HasO1GetIndexMeth` have to be written more or less by hand. As a result the number of types with
 method for this function is limited.
 
-Some methods are incorrect. For example `HasSetIndex!Meth(1:10)` is `true`, but it should be false.
-This is because a method *is* defined, but it just throws an error.
+Some methods are probably incorrect.
+
+Fixed. ~~For example `HasSetIndex!Meth(1:10)` is `true`, but it should be false.
+This is because a method *is* defined, but it just throws an error.~~
