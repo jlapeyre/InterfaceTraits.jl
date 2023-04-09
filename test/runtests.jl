@@ -1,6 +1,30 @@
 using InterfaceTraits
 using Test
 
+if VERSION < v"1.9"
+    import Base: invokelatest
+end
+
+if VERSION < v"1.1"
+    isnothing(x) = x === nothing
+end
+
+# v1.0 requires type def outside of local scope
+struct A end
+
+@testset "new type" begin
+    @test isnothing(HasIterateMeth(A))
+    @test isnothing(HasLengthMeth(A))
+    @test isnothing(HasSizeMeth(A))
+    @test isnothing(HasGetIndexMeth(A))
+    @test isnothing(HasSetIndex!Meth(A))
+    @test isnothing(HasO1GetIndexMeth(A))
+    InterfaceTraits.HasIterateMeth(::Type{A}) = true
+    InterfaceTraits.HasLengthMeth(::Type{A}) = false
+    @test invokelatest(HasIterateMeth, A)
+    @test !invokelatest(HasLengthMeth, A)
+end
+
 @testset "Array" begin
     vint = [1,2]
     @test HasIterateMeth(vint)
@@ -37,7 +61,11 @@ end
     @test HasSizeMeth(r)
     @test HasGetIndexMeth(r)
     @test !HasSetIndex!Meth(r)
-    @test_throws CanonicalIndexError r[1] = 1
+    if VERSION < v"1.8"
+        @test_throws ErrorException r[1] = 1
+    else
+        @test_throws CanonicalIndexError r[1] = 1
+    end
     @test HasO1GetIndexMeth(r)
 
     r = 1:2:10
@@ -46,7 +74,11 @@ end
     @test HasSizeMeth(r)
     @test HasGetIndexMeth(r)
     @test !HasSetIndex!Meth(r)
-    @test_throws CanonicalIndexError r[1] = 1
+    if VERSION < v"1.8"
+        @test_throws ErrorException r[1] = 1
+    else
+        @test_throws CanonicalIndexError r[1] = 1
+    end
     @test HasO1GetIndexMeth(r)
 end
 
@@ -80,13 +112,15 @@ end
     @test !HasSetIndex!Meth(str)
     @test !HasO1GetIndexMeth(str)
 
-    sstr = view(str, 1:4)
-    @test HasIterateMeth(str)
-    @test HasLengthMeth(str)
-    @test !HasSizeMeth(str)
-    @test HasGetIndexMeth(str)
-    @test !HasSetIndex!Meth(str)
-    @test !HasO1GetIndexMeth(str)
+    if VERSION >= v"1.6"
+        sstr = view(str, 1:4)
+        @test HasIterateMeth(sstr)
+        @test HasLengthMeth(sstr)
+        @test !HasSizeMeth(sstr)
+        @test HasGetIndexMeth(sstr)
+        @test !HasSetIndex!Meth(sstr)
+        @test !HasO1GetIndexMeth(sstr)
+    end
 end
 
 @testset "Zip" begin
@@ -103,3 +137,10 @@ end
     @test_throws MethodError z[1] = 1
     @test !HasO1GetIndexMeth(z)
 end
+
+
+#     @test HasIterateMeth(A)
+#     @test HasIterateMeth(A())
+#     @test !HasLengthMeth(A)
+#     @test !HasLengthMeth(A())
+# end

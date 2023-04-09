@@ -16,6 +16,11 @@ import Base.Iterators: Filter, Reverse, Stateful, Count, IterationCutShort, Take
 const _ITERATORS = [Filter, Reverse, Stateful, Count, IterationCutShort, Take,
                     Cycle, PartitionIterator, Drop, ProductIterator, Zip, Repeated, Enumerate, Rest]
 
+if VERSION < v"1.1"
+    import Base.Iterators: Zip2
+    push!(_ITERATORS, Zip2)
+end
+
 if VERSION >= v"1.4"
     import Base.Iterators: Accumulate, TakeWhile, DropWhile
     append!(_ITERATORS, [Accumulate, TakeWhile, DropWhile])
@@ -58,13 +63,13 @@ end
 
 function _get_several_leaf_types()
     leaf_types = Any[]
-    iterators = [Filter, Reverse, Stateful, Count, IterationCutShort, Take,
-    Cycle, PartitionIterator, Drop, ProductIterator, Zip, Repeated, Enumerate, Rest]
-    if VERSION >= v"1.4"
-        append!(iterators, [Accumulate, DropWhile, TakeWhile])
-    end
+    # iterators = [Filter, Reverse, Stateful, Count, IterationCutShort, Take,
+    # Cycle, PartitionIterator, Drop, ProductIterator, Zip, Repeated, Enumerate, Rest]
+    # if VERSION >= v"1.4"
+    #     append!(iterators, [Accumulate, DropWhile, TakeWhile])
+    # end
     toptypes = (AbstractArray, AbstractDict, Base.Generator, AbstractString, Tuple,
-                iterators...)
+                _ITERATORS...)
     for _type in toptypes
         _get_leaf_types!(_type, leaf_types)
     end
