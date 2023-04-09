@@ -101,9 +101,10 @@ end
 
 HasSetIndex!Meth(::Type{<:AbstractRange}) = false
 
-let string_types = [:String, :SubString, :SubstitutionString]
-    VERSION >= v"1.8" && push!(string_types, :LazyString)
-    for _type in string_types
+# Types with no O1 getindex.
+let type_list = [:String, :SubString, :SubstitutionString, :(Base.Generator)]
+    VERSION >= v"1.8" && push!(type_list, :LazyString)
+    for _type in type_list
         @eval HasO1GetIndexMeth(::Type{<:$_type}) = false
     end
 end

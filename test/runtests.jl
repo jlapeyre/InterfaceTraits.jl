@@ -2,13 +2,31 @@ using InterfaceTraits
 using Test
 
 @testset "Array" begin
-    v = [1,2]
-    @test HasIterateMeth(v)
-    @test HasLengthMeth(v)
-    @test HasSizeMeth(v)
-    @test HasGetIndexMeth(v)
-    @test HasSetIndex!Meth(v)
-    @test HasO1GetIndexMeth(v)
+    vint = [1,2]
+    @test HasIterateMeth(vint)
+    @test HasLengthMeth(vint)
+    @test HasSizeMeth(vint)
+    @test HasGetIndexMeth(vint)
+    @test HasSetIndex!Meth(vint)
+    @test HasO1GetIndexMeth(vint)
+
+    vfloat = [1.0, 2.0]
+    @test HasIterateMeth(vfloat)
+    @test HasLengthMeth(vfloat)
+    @test HasSizeMeth(vfloat)
+    @test HasGetIndexMeth(vfloat)
+    @test HasSetIndex!Meth(vfloat)
+    @test HasO1GetIndexMeth(vfloat)
+end
+
+@testset "Generator" begin
+    gen = (x for x in 1:3)
+    @test HasIterateMeth(gen)
+    @test HasLengthMeth(gen)
+    @test HasSizeMeth(gen)
+    @test !HasGetIndexMeth(gen)
+    @test !HasSetIndex!Meth(gen)
+    @test !HasO1GetIndexMeth(gen)
 end
 
 @testset "AbstractRange" begin
