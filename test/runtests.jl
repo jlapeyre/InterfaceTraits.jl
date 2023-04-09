@@ -19,6 +19,37 @@ using Test
     @test HasO1GetIndexMeth(vfloat)
 end
 
+@testset "SubArray" begin
+    vint = view(collect(1:4), 1:3)
+    @test HasIterateMeth(vint)
+    @test HasLengthMeth(vint)
+    @test HasSizeMeth(vint)
+    @test HasGetIndexMeth(vint)
+    @test HasSetIndex!Meth(vint)
+    @test HasO1GetIndexMeth(vint)
+end
+
+@testset "AbstractRange" begin
+    r = 1:10
+    @test HasIterateMeth(r)
+    @test iterate(r) isa Tuple
+    @test HasLengthMeth(r)
+    @test HasSizeMeth(r)
+    @test HasGetIndexMeth(r)
+    @test !HasSetIndex!Meth(r)
+    @test_throws CanonicalIndexError r[1] = 1
+    @test HasO1GetIndexMeth(r)
+
+    r = 1:2:10
+    @test HasIterateMeth(r)
+    @test HasLengthMeth(r)
+    @test HasSizeMeth(r)
+    @test HasGetIndexMeth(r)
+    @test !HasSetIndex!Meth(r)
+    @test_throws CanonicalIndexError r[1] = 1
+    @test HasO1GetIndexMeth(r)
+end
+
 @testset "Generator" begin
     gen = (x for x in 1:3)
     @test HasIterateMeth(gen)
@@ -29,20 +60,46 @@ end
     @test !HasO1GetIndexMeth(gen)
 end
 
-@testset "AbstractRange" begin
-    r = 1:10
-    @test HasIterateMeth(r)
-    @test HasLengthMeth(r)
-    @test HasSizeMeth(r)
-    @test HasGetIndexMeth(r)
-    @test !HasSetIndex!Meth(r)
-    @test HasO1GetIndexMeth(r)
+@testset "String" begin
+    str = "abc"
+    @test HasIterateMeth(str)
+    @test HasLengthMeth(str)
+    @test !HasSizeMeth(str)
+    @test HasGetIndexMeth(str)
+    @test !HasSetIndex!Meth(str)
+    @test_throws MethodError str[1] = 1
+    @test !HasO1GetIndexMeth(str)
+end
 
-    r = 1:2:10
-    @test HasIterateMeth(r)
-    @test HasLengthMeth(r)
-    @test HasSizeMeth(r)
-    @test HasGetIndexMeth(r)
-    @test !HasSetIndex!Meth(r)
-    @test HasO1GetIndexMeth(r)
+@testset "SubString" begin
+    str = "zebragiraffe"
+    @test HasIterateMeth(str)
+    @test HasLengthMeth(str)
+    @test !HasSizeMeth(str)
+    @test HasGetIndexMeth(str)
+    @test !HasSetIndex!Meth(str)
+    @test !HasO1GetIndexMeth(str)
+
+    sstr = view(str, 1:4)
+    @test HasIterateMeth(str)
+    @test HasLengthMeth(str)
+    @test !HasSizeMeth(str)
+    @test HasGetIndexMeth(str)
+    @test !HasSetIndex!Meth(str)
+    @test !HasO1GetIndexMeth(str)
+end
+
+@testset "Zip" begin
+    z = zip([1,2], [3,4])
+    @test HasIterateMeth(z)
+    @test iterate(z) isa Tuple
+    @test HasLengthMeth(z)
+    @test length(z) == 2
+    @test HasSizeMeth(z)
+    @test size(z) == (2,)
+    @test !HasGetIndexMeth(z)
+    @test_throws MethodError z[1]
+    @test !HasSetIndex!Meth(z)
+    @test_throws MethodError z[1] = 1
+    @test !HasO1GetIndexMeth(z)
 end

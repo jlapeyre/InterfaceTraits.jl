@@ -13,8 +13,12 @@ import OrderedCollections
 import Base.Iterators: Filter, Reverse, Stateful, Count, IterationCutShort, Take,
     Cycle, PartitionIterator, Drop, ProductIterator, Zip, Repeated, Enumerate, Rest
 
+const _ITERATORS = [Filter, Reverse, Stateful, Count, IterationCutShort, Take,
+                    Cycle, PartitionIterator, Drop, ProductIterator, Zip, Repeated, Enumerate, Rest]
+
 if VERSION >= v"1.4"
     import Base.Iterators: Accumulate, TakeWhile, DropWhile
+    append!(_ITERATORS, [Accumulate, TakeWhile, DropWhile])
 end
 
 export InterfaceTrait, HasIterateMeth, HasLengthMeth, HasSizeMeth, HasGetIndexMeth, HasO1GetIndexMeth,
@@ -27,6 +31,8 @@ struct HasSizeMeth <: InterfaceTrait end
 struct HasGetIndexMeth <: InterfaceTrait end
 struct HasSetIndex!Meth <: InterfaceTrait end
 struct HasO1GetIndexMeth <: InterfaceTrait end # Is indexing O(1)
+
+
 
 for trait in (:HasIterateMeth, :HasLengthMeth, :HasSizeMeth, :HasGetIndexMeth, :HasSetIndex!Meth, :HasO1GetIndexMeth)
     @eval function $trait(x)
@@ -95,8 +101,13 @@ let _types = _get_several_leaf_types()
     end
 end
 
-for _type in (:AbstractRange, :Array, :Tuple)
-    @eval HasO1GetIndexMeth(::Type{<:$_type}) = true
+# I think AbstractArray does not require O1 access. So we have to do some individually.
+# We can exclude those that don't support O1 access with a conditional here.
+let type_list = InteractiveUtils.subtypes(AbstractArray)
+    push!(type_list, Tuple)
+    for the_type in type_list
+        @eval HasO1GetIndexMeth(::Type{<:$the_type}) = true
+    end
 end
 
 HasSetIndex!Meth(::Type{<:AbstractRange}) = false
@@ -104,6 +115,7 @@ HasSetIndex!Meth(::Type{<:AbstractRange}) = false
 # Types with no O1 getindex.
 let type_list = [:String, :SubString, :SubstitutionString, :(Base.Generator)]
     VERSION >= v"1.8" && push!(type_list, :LazyString)
+    append!(type_list, _ITERATORS)
     for _type in type_list
         @eval HasO1GetIndexMeth(::Type{<:$_type}) = false
     end
