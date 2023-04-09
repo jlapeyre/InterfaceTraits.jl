@@ -17,7 +17,25 @@ struct HasO1GetIndexMeth <: InterfaceTrait end # Is indexing O(1)
 As usual we abuse the contstructors to return a `Bool` when these are called with various objects.
 Method definitions for several type in `Base` are provided.
 
-### How it is implmented
+Each trait can be called on types or instances of types and returns one of `true`, `false` or `nothing`,
+with `nothing` signifying "unknown". For example
+```julia
+julia> HasIterateMeth([1, 2, 3])
+true
+
+julia> HasIterateMeth(Vector)
+true
+
+julia> HasSetIndex!Meth(1:3)
+false
+
+julia> struct A end;
+
+julia> isnothing(HasIterateMeth(A))
+true
+```
+
+### How it is implemented
 
 Most of the methods for subtypes of `InterfaceTrait` are constructed by calling `hasmethod` on the
 corresponding function at the time `InterfaceTraits` is compiled.
