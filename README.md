@@ -17,6 +17,11 @@ struct HasO1GetIndexMeth <: InterfaceTrait end # Is indexing O(1)
 As usual we abuse the contstructors to return a `Bool` when these are called with various objects.
 Method definitions for several type in `Base` are provided.
 
+### How it is implmented
+
+Most of the methods for subtypes of `InterfaceTrait` are constructed by calling `hasmethod` on the
+corresponding function at the time `InterfaceTraits` is compiled.
+
 ### Tests
 
 A handful of tests are provided.
@@ -44,3 +49,19 @@ Here is a useful function:
 ```julia
 maybecollect(v) = HasO1GetIndexMeth(v) ? v : collect(v)
 ```
+
+### Limitations
+
+The methods defined by this packge depend on what other packages are loaded at the time this package is compiled.
+
+Most types for which methods are compiled are subtypes of `UnionAll`, so concrete type parameters are not filled in.
+We check for instance for `setindex(x::Vector, ind::Int, val::Int)`. This gives the correct result for
+`Vector{Float64}` because our assumption that `setindex` is sensibly defined for `Vector{Int}` means that it
+likely is sensibly defined for `Vector{Float64}`. This is correct in this case, and often a good assumtpion. But
+there are likely cases where it will fail.
+
+Methods for `HasO1GetIndexMeth` have to be written more or less by hand. As a result the number of types with
+method for this function is limited.
+
+Some methods are incorrect. For example `HasSetIndex!Meth(1:10)` is `true`, but it should be false.
+This is because a method *is* defined, but it just throws an error.
