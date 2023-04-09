@@ -29,15 +29,68 @@ end
 export InterfaceTrait, HasIterateMeth, HasLengthMeth, HasSizeMeth, HasGetIndexMeth, HasO1GetIndexMeth,
     HasSetIndex!Meth
 
+"""
+    type InterfaceTrait
+
+Abstract type whose subtypes give statically determined information on which methods
+in the "Interfaces" section of the Julia documentation are implemented for types.
+"""
 abstract type InterfaceTrait end
+
+"""
+    HasIterateMeth(x::T) where T
+    HasIterateMeth(::Type{T}) where T
+
+Returns `true` if a method for `iterate` is implemented for type `T`.
+"""
 struct HasIterateMeth <: InterfaceTrait end  # Has method for `iterate`
+
+"""
+    HasLengthMeth(x::T) where T
+    HasLengthMeth(::Type{T}) where T
+
+Returns `true` if a method for `length` is implemented for type `T`.
+"""
 struct HasLengthMeth <: InterfaceTrait end   # Has method ...
+
+"""
+    HasSizeMeth(x::T) where T
+    HasSizeMeth(::Type{T}) where T
+
+Returns `true` if a method for `size` is implemented for type `T`.
+"""
 struct HasSizeMeth <: InterfaceTrait end
+
+"""
+    HasGetIndexMeth(x::T) where T
+    HasGetIndexMeth(::Type{T}) where T
+
+Returns `true` if a method for `getindex(::T, ::Int)` is implemented for type `T`.
+
+This really should be testing if reasonable methods for `getindex` are defined for `T`.
+But using a single `Int` is a proxy for the more fine grained information.
+"""
 struct HasGetIndexMeth <: InterfaceTrait end
+
+"""
+    HasSetindex!Meth(x::T) where T
+    HasSetindex!Meth(::Type{T}) where T
+
+Returns `true` if a method for `setindex!(::T, ::Int, ::Int)` is implemented for type `T`.
+
+This really should be testing if reasonable methods for `setindex!` are defined for `T`.
+But using a two `Int`s is a proxy for the more fine grained information.
+"""
 struct HasSetIndex!Meth <: InterfaceTrait end
+
+"""
+    HasO1GetIndexMeth(x::T) where T
+    HasO1GetIndexMeth(::Type{T}) where T
+
+Returns `true` if a method for `getindex(::T, ::Int)` is implemented for type `T` and
+fetches the value in O(1) time.
+"""
 struct HasO1GetIndexMeth <: InterfaceTrait end # Is indexing O(1)
-
-
 
 for trait in (:HasIterateMeth, :HasLengthMeth, :HasSizeMeth, :HasGetIndexMeth, :HasSetIndex!Meth, :HasO1GetIndexMeth)
     @eval function $trait(x)
