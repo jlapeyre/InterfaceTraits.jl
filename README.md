@@ -33,6 +33,14 @@ julia> struct A end;
 
 julia> isnothing(HasIterateMeth(A))
 true
+
+julia> InterfaceTraits.HasIterateMeth(::Type{A}) = false;
+
+julia> HasIterateMeth(A)
+false
+
+julia> HasIterateMeth(A())
+false
 ```
 
 ### How it is implemented
