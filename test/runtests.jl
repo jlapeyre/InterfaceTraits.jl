@@ -43,6 +43,26 @@ end
     @test HasO1GetIndexMeth(vfloat)
 end
 
+@testset "Tuple" begin
+    tup = (1, 2, 3)
+    @test HasIterateMeth(tup)
+    @test HasLengthMeth(tup)
+    @test !HasSizeMeth(tup)
+    @test HasGetIndexMeth(tup)
+    @test !HasSetIndex!Meth(tup)
+    @test HasO1GetIndexMeth(tup)
+end
+
+@testset "Dict" begin
+    dict = Dict(zip([1,2,3], [4,5,6]))
+    @test HasIterateMeth(dict)
+    @test HasLengthMeth(dict)
+    @test !HasSizeMeth(dict)
+    @test HasGetIndexMeth(dict)
+    @test HasSetIndex!Meth(dict)
+    @test HasO1GetIndexMeth(dict)
+end
+
 @testset "SubArray" begin
     vint = view(collect(1:4), 1:3)
     @test HasIterateMeth(vint)
@@ -137,10 +157,3 @@ end
     @test_throws MethodError z[1] = 1
     @test !HasO1GetIndexMeth(z)
 end
-
-
-#     @test HasIterateMeth(A)
-#     @test HasIterateMeth(A())
-#     @test !HasLengthMeth(A)
-#     @test !HasLengthMeth(A())
-# end

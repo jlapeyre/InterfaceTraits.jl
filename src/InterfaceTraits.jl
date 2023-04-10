@@ -162,7 +162,7 @@ end
 # I think AbstractArray does not require O1 access. So we have to do some individually.
 # We can exclude those that don't support O1 access with a conditional here.
 let type_list = InteractiveUtils.subtypes(AbstractArray)
-    push!(type_list, Tuple)
+    append!(type_list, [Tuple, Dict])
     for the_type in type_list
         @eval HasO1GetIndexMeth(::Type{<:$the_type}) = true
     end
