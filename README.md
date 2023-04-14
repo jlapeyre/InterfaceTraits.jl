@@ -5,6 +5,17 @@
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![JET QA](https://img.shields.io/badge/JET.jl-%E2%9C%88%EF%B8%8F-%23aa4444)](https://github.com/aviatesk/JET.jl)
 
+This package implements the ability to get statically determined information on whether there is a method for
+a particular combination of type and function. Non in general, but for specific functions with well defined semantics that are used in
+Julia to characterize an interface. It also adds a trait for supporting O(1) indexing.
+As an example, suppose I need to have fast indexing (or indexing at all) into an vector-like input. This could be for example a `Vector`
+or a `Generator`. The following function will materialize `v` only if it needs to.
+```julia
+maybecollect(v) = HasO1GetIndexMeth(v) ? v : collect(v)
+```
+Of course this is not foolproof (for example it might try to collect a generator with an infinite number of items.)
+But it's a good start for many situations.
+
 This package introduces the following traits
 
 ```julia
@@ -48,11 +59,11 @@ false
 ### How it is implemented
 
 Most of the methods for subtypes of `InterfaceTrait` are constructed by calling `hasmethod` on the
-corresponding function at the time `InterfaceTraits` is compiled.
+corresponding function at the time `InterfaceTraits` is compiled. The presence or absence of a method
+is recorded at a compile time. If an absent method is added later then the trait information will be
+wrong. So this is package is meant to be used for situations in which the interface of a type is stable.
+For example, a method for `setindex!(::Tuple, val, i)` should never by defined
 
-### Tests
-
-A handful of tests are provided.
 
 ### Why are these useful?
 
@@ -70,15 +81,9 @@ true
 It has to be this way because of the dynamic nature of Julia. However, for the traits here to
 disagree with `hasmethod` someone would have to be committing egregious type piracy.
 
-
-Here is a useful function:
-```julia
-maybecollect(v) = HasO1GetIndexMeth(v) ? v : collect(v)
-```
-
 ### Limitations
 
-The methods defined by this packge depend on what other packages are loaded at the time this package is compiled.
+The methods defined by this packge may depend on what other packages are loaded at the time this package is compiled.
 
 Most types for which methods are compiled are subtypes of `UnionAll`, so concrete type parameters are not filled in.
 We check for instance for `setindex(x::Vector, ind::Int, val::Int)`. This gives the correct result for
